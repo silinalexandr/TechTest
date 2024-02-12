@@ -1,0 +1,36 @@
+---
+- name: Deploy Jenkins Container
+  hosts: your_target_host
+  become: yes
+  tasks:
+    - name: Install Docker
+      apt:
+        name: docker.io
+        update_cache: yes
+      when: ansible_os_family == 'Debian'
+
+    - name: Start Docker service
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+      when: ansible_os_family == 'Debian'
+
+    - name: Pull Jenkins Docker image
+      docker_image:
+        name: jenkins/jenkins
+        state: present
+
+    - name: Create Jenkins Docker container
+      docker_container:
+        name: jenkins
+        image: jenkins/jenkins
+        ports:
+          - "8080:8080"
+          - "50000:50000"
+        volumes:
+          - "/var/jenkins_home:/var/jenkins_home"
+# Устанавливает Докер
+# запускает Докер
+# тянет образ с Докер Хаб
+# Создает контейнер проксируя порты 8080 и 50000, монтирует том для данных
